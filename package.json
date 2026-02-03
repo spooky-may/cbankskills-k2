@@ -1,0 +1,30 @@
+{
+  "name": "cn-finance",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Claude AI skills for financial services — investment banking, equity research, private equity, fund admin, wealth management",
+  "workspaces": [
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "typecheck": "npm run typecheck --workspace=web",
+    "lint": "npm run lint --workspace=web",
+    "validate-skills": "python skills/scripts/validate_plugins.py"
+  },
+  "keywords": [
+    "claude",
+    "ai",
+    "financial-services",
+    "investment-banking",
+    "equity-research",
+    "private-equity",
+    "plugins"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cn-finance/cn-finance"
+  }
+}

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { verticals } from "@/content/verticals";
 
-const GITHUB_URL = "https://github.com/spooky-may/project-jane-street";
 const SKILLS_URL = "https://github.com/spooky-may/project-jane-street/tree/main/skills";
 
 export default function DocsPage() {

@@ -33,6 +33,9 @@ env/
 
 ZAUTH-GUIDE.md
 
+# skills folder — local only, not tracked
+skills/
+
 # OS
 .DS_Store
 Thumbs.db

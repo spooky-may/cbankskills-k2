@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import { Inter } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { Instrument_Serif } from "next/font/google";
 import { ViewTransitions } from "next-view-transitions";
@@ -7,6 +7,11 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -26,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ViewTransitions>
       <html
         lang="en"
-        className={`${GeistSans.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
+        className={`${inter.variable} ${GeistMono.variable} ${instrumentSerif.variable}`}
       >
         <body>
           <SmoothScroll />

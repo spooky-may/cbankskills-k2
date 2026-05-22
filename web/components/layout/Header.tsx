@@ -45,8 +45,9 @@ const VERTICALS = [
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const skillsActive = pathname.startsWith("/skills");
-  const docsActive   = pathname.startsWith("/docs");
+  const skillsActive     = pathname.startsWith("/skills");
+  const enterpriseActive = pathname.startsWith("/enterprise");
+  const docsActive       = pathname.startsWith("/docs");
 
   return (
     <header
@@ -113,10 +114,22 @@ export default function Header() {
             </span>
           </Link>
 
+          {/* Invisible bridge that fills the gap so hover stays active during cursor travel */}
           {open && (
             <div style={{
               position: "absolute",
-              top: "calc(100% + 10px)",
+              top: "100%",
+              left: 0,
+              right: 0,
+              height: 12,
+              background: "transparent",
+            }} />
+          )}
+
+          {open && (
+            <div style={{
+              position: "absolute",
+              top: "calc(100% + 12px)",
               left: "-16px",
               width: 476,
               background: "#fff",
@@ -200,6 +213,22 @@ export default function Header() {
           )}
         </div>
 
+        {/* Enterprise — direct link */}
+        <Link
+          href="/enterprise"
+          className={`nav-link-item${enterpriseActive ? " nav-link-active" : ""}`}
+          style={{
+            fontSize: 13,
+            padding: "6px 12px",
+            borderRadius: 6,
+            display: "flex",
+            alignItems: "center",
+            textDecoration: "none",
+          }}
+        >
+          Enterprise
+        </Link>
+
         {/* Docs — direct link */}
         <Link
           href="/docs"
@@ -210,7 +239,6 @@ export default function Header() {
             borderRadius: 6,
             display: "flex",
             alignItems: "center",
-            gap: 4,
             textDecoration: "none",
           }}
         >

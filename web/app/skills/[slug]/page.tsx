@@ -78,7 +78,7 @@ export default function VerticalPage({ params }: Props) {
             <Link
               key={s.slug}
               href={`/skills/${v.slug}/${s.slug}`}
-              className="group bg-surface border border-border rounded-xl p-5 hover:border-primary hover:shadow-md transition-all flex flex-col gap-3"
+              className="group bg-surface border border-border rounded-xl p-5 hover:border-primary hover:shadow-md hover:-translate-y-0.5 hover:bg-surface-alt transition-all duration-300 flex flex-col gap-3"
             >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-text group-hover:text-primary transition-colors">

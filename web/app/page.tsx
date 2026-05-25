@@ -204,7 +204,7 @@ export default function HomePage() {
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 2,
+          gap: 20,
           marginTop: 56,
         }}>
           {[
@@ -283,7 +283,7 @@ export default function HomePage() {
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 2,
+          gap: 20,
           marginTop: 48,
         }}>
           {FEATURED.map((f, i) => (
@@ -370,7 +370,7 @@ export default function HomePage() {
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(2, 1fr)",
-            gap: 2,
+            gap: 20,
             marginTop: 48,
           }}>
             {verticals.map((v, i) => (

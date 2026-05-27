@@ -32,6 +32,13 @@ env/
 
 
 ZAUTH-GUIDE.md
+REDESIGN_SSOT.md
+
+# Design reference files (local only)
+cbank_wormhole_1to1.html
+Wormhole*
+grid-ss.png
+*-landing-page.png
 
 # skills folder — local only, not tracked
 skills/

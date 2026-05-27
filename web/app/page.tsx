@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Marquee from "@/components/Marquee";
+import TerminalDemo from "@/components/TerminalDemo";
+import ThreeSteps from "@/components/ThreeSteps";
 import { verticals } from "@/content/verticals";
 
 export const metadata: Metadata = {
@@ -218,7 +220,7 @@ export default function HomePage() {
           }}>
             <span style={{ fontSize: "clamp(60px, 10vw, 96px)" }}>55</span>
           </div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", marginTop: 10 }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginTop: 10 }}>
             Production-ready skills — ready to install today
           </div>
         </div>
@@ -231,7 +233,7 @@ export default function HomePage() {
           {[
             { prefix: "", num: "7",   suffix: "",    label: "Financial verticals" },
             { prefix: "", num: "10",  suffix: "",    label: "End-to-end agents" },
-            { prefix: "", num: "0",   suffix: "loc", label: "Lines of code to install" },
+            { prefix: "", num: "0",   suffix: "", label: "Lines of code to install" },
           ].map((s, i) => (
             <div
               key={i}
@@ -257,7 +259,7 @@ export default function HomePage() {
                   </span>
                 )}
               </div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-faint)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 10 }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 10 }}>
                 {s.label}
               </div>
             </div>
@@ -299,35 +301,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right: terminal demo */}
+        {/* Right: animated terminal demo */}
         <div style={{ padding: "72px 48px", display: "flex", alignItems: "center" }}>
-          <div className="anim anim-d2" style={{ width: "100%", background: "#0D1F14", borderRadius: 14, overflow: "hidden" }}>
-            {/* Terminal title bar */}
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 7 }}>
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.12)" }} />
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.12)" }} />
-              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.12)" }} />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(255,255,255,0.2)", marginLeft: 8 }}>claude — CBANK Skills</span>
-            </div>
-            {/* Terminal body */}
-            <div style={{ padding: "24px 22px", fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 2 }}>
-              {[
-                { prompt: true,  text: "/cim-builder Draft CIM for SaaS company — attached data room" },
-                { prompt: false, text: "Reading data room... structuring narrative...", color: "rgba(255,255,255,0.35)" },
-                { prompt: false, text: "Building executive summary and financials...", color: "rgba(255,255,255,0.35)" },
-                { prompt: false, text: "✓ CIM ready — 64 pages. Download DOCX.", color: "rgba(46,139,87,0.8)" },
-                { prompt: true,  text: "/dcf Apple 10-K — 5yr DCF with WACC sensitivity" },
-                { prompt: false, text: "Projecting FCF 2025–2029... calculating WACC...", color: "rgba(255,255,255,0.35)" },
-                { prompt: false, text: "✓ DCF complete. Base case $198/share. Excel ready.", color: "rgba(46,139,87,0.8)" },
-                { prompt: true,  text: "/ic-memo Acquisition of TechCo at 12x EBITDA" },
-                { prompt: false, text: "✓ IC memo drafted — 22 pages. Download PDF.", color: "rgba(46,139,87,0.8)" },
-              ].map((line, i) => (
-                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <span style={{ color: line.prompt ? "var(--accent)" : "transparent", flexShrink: 0 }}>›</span>
-                  <span style={{ color: line.color ?? "#fff" }}>{line.text}</span>
-                </div>
-              ))}
-            </div>
+          <div className="anim anim-d2" style={{ width: "100%" }}>
+            <TerminalDemo />
           </div>
         </div>
       </div>
@@ -341,7 +318,7 @@ export default function HomePage() {
           The full workflow,{" "}
           <span style={{ color: "var(--text-fade)" }}>one command at a time</span>
         </h2>
-        <p className="anim anim-d2" style={{ fontSize: 13, color: "rgba(13,31,20,0.45)", maxWidth: 420, lineHeight: 1.65, fontWeight: 300, marginBottom: 36 }}>
+        <p className="anim anim-d2" style={{ fontSize: 13, color: "var(--text-muted)", maxWidth: 420, lineHeight: 1.65, fontWeight: 300, marginBottom: 36 }}>
           Purpose-built for each desk. Download one skill or an entire vertical from GitHub.
         </p>
 
@@ -374,7 +351,7 @@ export default function HomePage() {
               <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 6, letterSpacing: "-0.01em" }}>
                 {s.name}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(13,31,20,0.45)", lineHeight: 1.6, fontWeight: 300 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, fontWeight: 300 }}>
                 {s.desc}
               </div>
             </Link>
@@ -391,44 +368,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── THREE STEPS — dark section ───────────────────────── */}
-      <div style={{ background: "var(--text)", padding: "72px 48px" }}>
-        <div className="anim" style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(46,139,87,0.7)", marginBottom: 12 }}>
-          How it works
-        </div>
-        <h2 className="anim anim-d1" style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, color: "#fff", marginBottom: 52 }}>
-          Three steps.{" "}
-          <span style={{ color: "rgba(255,255,255,0.32)" }}>No setup.</span>
-        </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-          {[
-            { n: "01", title: "Choose a vertical", desc: "Browse 7 financial verticals and 55 production skills. Pick exactly what your desk needs — nothing more." },
-            { n: "02", title: "Install the skill", desc: "Download the ZIP from GitHub. Upload to claude.ai/customize/skills. Active in under 2 minutes, no code required." },
-            { n: "03", title: "Run the command", desc: "Type /dcf, /cim-builder, /ic-memo — or any of the 55 slash commands — in Claude and attach your files." },
-          ].map((step, i) => (
-            <div
-              key={step.n}
-              className={`anim anim-d${i + 1}`}
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: 12,
-                padding: "28px 26px",
-              }}
-            >
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 30, fontWeight: 800, color: "var(--accent)", lineHeight: 1, marginBottom: 18, letterSpacing: "-0.04em" }}>
-                {step.n}
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 10, letterSpacing: "-0.01em" }}>
-                {step.title}
-              </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, fontWeight: 300 }}>
-                {step.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ── THREE STEPS — interactive flow diagram ───────────── */}
+      <ThreeSteps />
 
       {/* ── PILLARS — "The foundation" ────────────────────────── */}
       <div style={{ background: "var(--bg)", borderTop: "1px solid var(--b0)", padding: "64px 48px" }}>
@@ -456,7 +397,7 @@ export default function HomePage() {
               <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", marginBottom: 8, letterSpacing: "-0.02em" }}>
                 {p.label}
               </div>
-              <div style={{ fontSize: 12, color: "rgba(13,31,20,0.45)", lineHeight: 1.65, fontWeight: 300 }}>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.65, fontWeight: 300 }}>
                 {p.desc}
               </div>
             </div>
@@ -473,11 +414,11 @@ export default function HomePage() {
           Install only what{" "}
           <span style={{ color: "var(--text-fade)" }}>your team needs</span>
         </h2>
-        <p className="anim anim-d2" style={{ fontSize: 13, color: "rgba(13,31,20,0.45)", maxWidth: 420, lineHeight: 1.65, fontWeight: 300, marginBottom: 36 }}>
+        <p className="anim anim-d2" style={{ fontSize: 13, color: "var(--text-muted)", maxWidth: 420, lineHeight: 1.65, fontWeight: 300, marginBottom: 36 }}>
           Each vertical is a self-contained plugin — install one skill, one vertical, or all seven.
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-          {verticals.map((v, i) => (
+          {verticals.slice(0, 6).map((v, i) => (
             <Link
               key={v.slug}
               href={`/skills/${v.slug}`}
@@ -495,7 +436,7 @@ export default function HomePage() {
               <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", marginBottom: 5, letterSpacing: "-0.02em" }}>
                 {v.title}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(13,31,20,0.45)", lineHeight: 1.55, marginBottom: 16, fontWeight: 300 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.55, marginBottom: 16, fontWeight: 300 }}>
                 {v.tagline}
               </div>
               <code style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", background: "var(--accent-dim)", padding: "4px 8px", borderRadius: 4, display: "inline-block", letterSpacing: "0.02em" }}>

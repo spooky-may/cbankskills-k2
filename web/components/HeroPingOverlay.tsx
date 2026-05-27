@@ -2,23 +2,22 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-const TILE_W = 52
-const TILE_H = 28
-const DX = 18
-const DY = 10
+const TILE_W  = 52
+const TILE_H  = 28
+const DX      = 18   // diamond half-width
+const DY      = 10   // diamond half-height
+const CDEPTH  = 13   // mini-crystal cube depth (px)
 
-const COLORS = ['#F472B6', '#60A5FA', '#FBBF24'] as const
-type Color = (typeof COLORS)[number]
+const STEP_MS  = 440  // cinematic pace — each tile step
+const MERGE_MS = 4200 // crystal hold duration
+const PAUSE_MS = 1300 // gap after crystal fades
+const MAX_AGE  = 2    // trail decay levels after head departs
 
-const STEP_MS  = 420   // ms per grid step — deliberately slow/cinematic
-const GLIDE_MS = 350   // CSS transition for smooth head glide (< STEP_MS)
-const MERGE_MS = 4000  // merged tile hold duration
-const PAUSE_MS = 1000
-const TRAIL    = 2
+const TILE_DARK = 'rgba(13,31,20,0.34)'  // matches --text token at 34% opacity
 
-interface GridPt { r: number; c: number; x: number; y: number }
-interface TravelerState { id: number; path: GridPt[]; step: number; color: Color }
-interface MergedTile    { id: number; x: number; y: number; c1: Color; c2: Color }
+interface GridPt    { r: number; c: number; x: number; y: number }
+interface ActiveTile { id: number; x: number; y: number; age: number }
+interface Crystal    { id: number; x: number; y: number }
 
 let uid = 0
 
@@ -32,10 +31,10 @@ function buildGrid(cols: number, rows: number): GridPt[][] {
   )
 }
 
-// Cube SVG is right:0, width:55%, viewBox "0 0 540 500"
-// Each entry: [vbX, vbY, vbW, vbH] in viewBox units, with drop-shadow clearance
+// Cube panel: right:0, width:55%, viewBox "0 0 540 500"
+// Block cells that overlap the green 3D cubes so crystal never spawns there
 const CUBE_DEFS: [number, number, number, number][] = [
-  [300,  55, 130, 120],  // large cube
+  [300,  55, 130, 120],
   [360, 220,  92,  86],
   [210, 320,  72,  66],
   [454, 140,  56,  52],
@@ -47,141 +46,27 @@ function computeBlocked(
   gridRows: number, gridCols: number
 ): Set<string> {
   const panelLeft = vpW * 0.45
-  const panelW    = vpW * 0.55
-  const scaleX    = panelW / 540
-  // Hero section is roughly viewport-height minus nav (60px)
-  const heroH     = vpH - 60
-  const scaleY    = heroH / 500
-
-  const blocked = new Set<string>()
-  const PAD = 1  // extra grid tiles of clearance around each cube
+  const scaleX    = (vpW * 0.55) / 540
+  const scaleY    = (vpH - 60) / 500
+  const b = new Set<string>()
 
   for (const [vx, vy, vw, vh] of CUBE_DEFS) {
-    const px1 = panelLeft + vx * scaleX
-    const px2 = panelLeft + (vx + vw) * scaleX
-    const py1 = vy * scaleY
-    const py2 = (vy + vh) * scaleY
-
-    const c1 = Math.floor((px1 - 26) / TILE_W) - PAD
-    const c2 = Math.ceil( (px2 - 26) / TILE_W) + PAD
-    const r1 = Math.floor((py1 - 14) / TILE_H) - PAD
-    const r2 = Math.ceil( (py2 - 14) / TILE_H) + PAD
-
-    for (let r = Math.max(0, r1); r <= Math.min(gridRows - 1, r2); r++) {
-      for (let c = Math.max(0, c1); c <= Math.min(gridCols - 1, c2); c++) {
-        blocked.add(`${r},${c}`)
-      }
-    }
+    const c1 = Math.floor((panelLeft + vx * scaleX - 26) / TILE_W) - 1
+    const c2 = Math.ceil( (panelLeft + (vx + vw) * scaleX - 26) / TILE_W) + 1
+    const r1 = Math.floor((vy * scaleY - 14) / TILE_H) - 1
+    const r2 = Math.ceil( ((vy + vh) * scaleY - 14) / TILE_H) + 1
+    for (let r = Math.max(0, r1); r <= Math.min(gridRows - 1, r2); r++)
+      for (let c = Math.max(0, c1); c <= Math.min(gridCols - 1, c2); c++)
+        b.add(`${r},${c}`)
   }
-  return blocked
-}
-
-function pickTwo(): [Color, Color] {
-  const i = Math.floor(Math.random() * COLORS.length)
-  let j  = Math.floor(Math.random() * (COLORS.length - 1))
-  if (j >= i) j++
-  return [COLORS[i], COLORS[j]]
-}
-
-/**
- * Wandering path from (sr,sc) to (er,ec).
- * Avoids blocked cells by routing around them (row bypass),
- * giving the visual effect of physically going around the cubes.
- */
-function wanderPath(
-  grid: GridPt[][],
-  blocked: Set<string>,
-  sr: number, sc: number,
-  er: number, ec: number,
-  budget: number
-): GridPt[] {
-  const maxR = grid.length - 1
-  const maxC = grid[0].length - 1
-  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
-  const free  = (r: number, c: number) =>
-    r >= 0 && r <= maxR && c >= 0 && c <= maxC && !blocked.has(`${r},${c}`)
-
-  const path: GridPt[] = [grid[sr][sc]]
-  let r = sr, c = sc
-
-  for (let i = 0; i < budget; i++) {
-    const remaining = budget - i
-    const dr = er - r
-    const dc = ec - c
-    const dist = Math.abs(dr) + Math.abs(dc)
-
-    if (dist === 0) { path.push(grid[er][ec]); continue }
-
-    let nr = r, nc = c
-    const mustDirect = dist >= remaining
-
-    if (mustDirect) {
-      if (Math.abs(dc) >= Math.abs(dr)) {
-        nc = c + Math.sign(dc)
-        if (dr !== 0 && remaining > 1) nr = r + Math.sign(dr)
-      } else {
-        nr = r + Math.sign(dr)
-        if (dc !== 0) nc = c + Math.sign(dc)
-      }
-    } else {
-      const slack = remaining - dist
-      const roll  = Math.random()
-      if (roll < 0.40) {
-        // Direct progress on primary axis
-        if (Math.abs(dc) >= Math.abs(dr)) {
-          nc = c + Math.sign(dc)
-          if (dr !== 0 && Math.random() < 0.45) nr = r + Math.sign(dr)
-        } else {
-          nr = r + Math.sign(dr)
-          if (dc !== 0 && Math.random() < 0.45) nc = c + Math.sign(dc)
-        }
-      } else if (roll < 0.58) {
-        // Row wander — lateral drift with slight col nudge
-        nr = r + (Math.random() < 0.5 ? 1 : -1)
-        if (dc !== 0 && Math.random() < 0.30) nc = c + Math.sign(dc)
-      } else if (roll < 0.74) {
-        // Diagonal drift: col progress + row wobble
-        if (dc !== 0) nc = c + Math.sign(dc)
-        nr = r + (Math.random() < 0.5 ? 1 : -1)
-      } else if (slack > 3 && roll < 0.87) {
-        // Brief col backtrack (indecision) + row progress
-        if (dc !== 0) nc = c - Math.sign(dc)
-        nr = r + (dr !== 0 ? Math.sign(dr) : (Math.random() < 0.5 ? 1 : -1))
-      } else {
-        nr = r + (Math.random() < 0.5 ? 1 : -1)
-      }
-    }
-
-    nr = clamp(nr, 0, maxR)
-    nc = clamp(nc, 0, maxC)
-
-    // If the computed step hits a blocked cell, route around it (row bypass first,
-    // so travelers visually arc around the physical cube shapes)
-    if (!free(nr, nc)) {
-      const bypasses = [
-        { r: r + 1, c: nc }, { r: r - 1, c: nc },
-        { r: r + 2, c: nc }, { r: r - 2, c: nc },
-        { r: nr,   c: c   },  // stay column, move row only
-        { r: nr,   c: nc + Math.sign(dc || 1) },
-      ]
-      const alt = bypasses.find(a => free(a.r, a.c))
-      if (alt) { nr = alt.r; nc = alt.c }
-      // Fallback: proceed anyway (diamond passes behind cube — acceptable)
-    }
-
-    r = nr; c = nc
-    path.push(grid[r][c])
-  }
-
-  path.push(grid[er][ec])
-  return path
+  return b
 }
 
 export default function HeroPingOverlay() {
-  const [grid,      setGrid]      = useState<GridPt[][]>([])
-  const [blocked,   setBlocked]   = useState<Set<string>>(new Set())
-  const [travelers, setTravelers] = useState<TravelerState[]>([])
-  const [merged,    setMerged]    = useState<MergedTile | null>(null)
+  const [grid,    setGrid]    = useState<GridPt[][]>([])
+  const [blocked, setBlocked] = useState<Set<string>>(new Set())
+  const [tiles,   setTiles]   = useState<ActiveTile[]>([])
+  const [crystal, setCrystal] = useState<Crystal | null>(null)
 
   const alive  = useRef(true)
   const stepIv = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -198,78 +83,106 @@ export default function HeroPingOverlay() {
     if (!grid.length || !grid[0].length) return
     alive.current = true
 
-    const later = (fn: () => void, ms: number) => {
-      schedT.current = setTimeout(fn, ms)
-    }
+    const later = (fn: () => void, ms: number) => { schedT.current = setTimeout(fn, ms) }
 
     const spawnEvent = () => {
       if (!alive.current) return
       const rows = grid.length
       const cols = grid[0].length
 
-      // Stay in right portion; cubes bleed into this zone but blocked cells handle avoidance
-      const lo = Math.floor(cols * 0.50)
-      const hi = Math.floor(cols * 0.90)
-      if (lo + 10 > hi) return
+      // Path length: 5–7 steps per arm
+      const n = 5 + Math.floor(Math.random() * 3)
 
-      // Pick a free meeting point
-      let meetR = 0, meetC = 0
-      for (let a = 0; a < 40; a++) {
-        meetR = Math.floor(rows * 0.12 + Math.random() * rows * 0.62)
-        meetC = lo + 3 + Math.floor(Math.random() * (hi - lo - 5))
-        if (!blocked.has(`${meetR},${meetC}`)) break
+      // Randomly pick V (converge from above) or ^ (converge from below)
+      const fromBelow = Math.random() < 0.45
+
+      // Meeting point must sit in right half with enough room for both arms
+      const lo = Math.floor(cols * 0.52)
+      const hi = Math.floor(cols * 0.88)
+
+      let meetR = 0, meetC = 0, valid = false
+      for (let a = 0; a < 50; a++) {
+        // Row bounds differ per direction
+        const rMin = fromBelow ? 2       : n + 1
+        const rMax = fromBelow ? rows - n - 1 : Math.floor(rows * 0.72)
+        if (rMin >= rMax) continue
+
+        meetR = rMin + Math.floor(Math.random() * (rMax - rMin))
+        // Column must have n clear tiles on each side
+        const cMin = lo + n
+        const cMax = hi - n
+        if (cMin >= cMax) continue
+
+        meetC = cMin + Math.floor(Math.random() * (cMax - cMin))
+
+        if (!blocked.has(`${meetR},${meetC}`)) { valid = true; break }
       }
-      if (blocked.has(`${meetR},${meetC}`)) return
+      if (!valid) return
 
-      const spread = 4 + Math.floor(Math.random() * 3)
-      const budget = spread + 5 + Math.floor(Math.random() * 5)
+      // Build symmetric V-paths along the two diagonal axes of the isometric grid
+      // Signal A: left arm  — col decreases away from meet, converges right  (+col each step)
+      // Signal B: right arm — col increases away from meet, converges left   (-col each step)
+      const pathA: GridPt[] = []
+      const pathB: GridPt[] = []
 
-      const clampR = (v: number) => Math.max(0, Math.min(rows - 1, v))
-      const startRA = clampR(meetR + Math.round((Math.random() - 0.5) * 5))
-      const startRB = clampR(meetR + Math.round((Math.random() - 0.5) * 5))
-      const startCA = Math.max(0,        meetC - spread)
-      const startCB = Math.min(cols - 1, meetC + spread)
+      for (let i = 0; i <= n; i++) {
+        // Row: approach meeting row from above (V) or below (^)
+        const r = fromBelow
+          ? Math.max(0,        meetR + n - i)  // starts low, moves up
+          : Math.min(rows - 1, meetR - n + i)  // starts high, moves down
 
-      const [c1, c2] = pickTwo()
-      const pathA = wanderPath(grid, blocked, startRA, startCA, meetR, meetC, budget)
-      const pathB = wanderPath(grid, blocked, startRB, startCB, meetR, meetC, budget)
+        const cA = Math.max(0,        meetC - n + i)
+        const cB = Math.min(cols - 1, meetC + n - i)
 
-      const idA = uid++; const idB = uid++
-      setTravelers([
-        { id: idA, path: pathA, step: 0, color: c1 },
-        { id: idB, path: pathB, step: 0, color: c2 },
+        pathA.push(grid[r][cA])
+        pathB.push(grid[r][cB])
+      }
+
+      // Activate first tiles immediately
+      setTiles([
+        { id: uid++, x: pathA[0].x, y: pathA[0].y, age: 0 },
+        { id: uid++, x: pathB[0].x, y: pathB[0].y, age: 0 },
       ])
 
       let step = 0
-      const maxStep = Math.max(pathA.length, pathB.length) - 1
 
       stepIv.current = setInterval(() => {
         if (!alive.current) { clearInterval(stepIv.current!); return }
         step++
 
-        if (step >= maxStep) {
+        if (step >= n) {
+          // Signals converge — crystallize
           clearInterval(stepIv.current!); stepIv.current = null
-          setTravelers([])
+          setTiles([])
 
-          const mt = grid[meetR][meetC]
-          const mid = uid++
-          setMerged({ id: mid, x: mt.x, y: mt.y, c1, c2 })
+          const meet = grid[meetR][meetC]
+          const cid  = uid++
+          setCrystal({ id: cid, x: meet.x, y: meet.y })
 
           later(() => {
             if (!alive.current) return
-            setMerged(null)
+            setCrystal(null)
             later(spawnEvent, PAUSE_MS)
           }, MERGE_MS)
+
         } else {
-          setTravelers([
-            { id: idA, path: pathA, step: Math.min(step, pathA.length - 1), color: c1 },
-            { id: idB, path: pathB, step: Math.min(step, pathB.length - 1), color: c2 },
-          ])
+          setTiles(prev => {
+            // Age existing tiles; remove those past trail limit
+            const aged = prev
+              .map(t => ({ ...t, age: t.age + 1 }))
+              .filter(t => t.age <= MAX_AGE)
+            // Activate new tiles at current signal positions
+            return [
+              ...aged,
+              { id: uid++, x: pathA[step].x, y: pathA[step].y, age: 0 },
+              { id: uid++, x: pathB[step].x, y: pathB[step].y, age: 0 },
+            ]
+          })
         }
       }, STEP_MS)
     }
 
-    later(spawnEvent, 800)
+    later(spawnEvent, 900)
 
     return () => {
       alive.current = false
@@ -289,104 +202,94 @@ export default function HeroPingOverlay() {
         zIndex: 0,
       }}
     >
-      {travelers.map(t => {
-        const headPt = t.path[t.step]
-        return (
-          <g key={`t-${t.id}`}>
-            {/* Trail footprints — fixed positions, fade in on spawn, fade out on age */}
-            {Array.from({ length: TRAIL }, (_, i) => {
-              const pi  = t.step - (TRAIL - i)  // i=0 → older (age TRAIL), i=1 → newer (age 1)
-              if (pi < 0) return null
-              const age = t.step - pi
-              const pt  = t.path[pi]
-              return (
-                <g key={`trail-${t.id}-${pi}`} transform={`translate(${pt.x},${pt.y})`}>
-                  <polygon
-                    points={`0,${-DY} ${DX},0 0,${DY} ${-DX},0`}
-                    fill={t.color}
-                    style={{
-                      opacity: age === 1 ? 0.34 : 0.12,
-                      transition: 'opacity 220ms ease',
-                      // Fade-in when tile first becomes a trail (age === 1)
-                      animation: age === 1 ? 'trailBirth 260ms ease-out' : 'none',
-                    }}
-                  />
-                </g>
-              )
-            })}
+      <defs>
+        {/* Green gradients matching the hero 3D cubes exactly */}
+        <linearGradient id="mc-top"  x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stopColor="#dceee4" />
+          <stop offset="100%" stopColor="#c0dccb" />
+        </linearGradient>
+        <linearGradient id="mc-left" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stopColor="#a8d4be" />
+          <stop offset="100%" stopColor="#7bbf9e" />
+        </linearGradient>
+        <linearGradient id="mc-rite" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stopColor="#c0dccb" />
+          <stop offset="100%" stopColor="#96c8ae" />
+        </linearGradient>
+        <filter id="mc-ds" x="-80%" y="-80%" width="260%" height="260%">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(46,139,87,0.35)" />
+        </filter>
+      </defs>
 
-            {/* Head — CSS transform transition makes it glide between tiles */}
-            <g
+      {/* Dark activation tiles — each mounts fresh with tilePop, decays via opacity transition */}
+      {tiles.map(t => {
+        const op = t.age === 0 ? 0.34 : t.age === 1 ? 0.17 : 0.07
+        return (
+          <g key={t.id} transform={`translate(${t.x},${t.y})`}>
+            <polygon
+              points={`0,${-DY} ${DX},0 0,${DY} ${-DX},0`}
+              fill={TILE_DARK}
+              stroke={TILE_DARK}
+              strokeWidth="0.4"
               style={{
-                transform: `translate(${headPt.x}px,${headPt.y}px)`,
-                transition: `transform ${GLIDE_MS}ms cubic-bezier(0.4,0,0.6,1)`,
-                willChange: 'transform',
+                opacity: op,
+                transition: 'opacity 300ms ease',
+                animation: t.age === 0 ? 'tilePop 200ms ease-out' : 'none',
               }}
-            >
-              <polygon
-                points={`0,${-DY} ${DX},0 0,${DY} ${-DX},0`}
-                fill={t.color}
-                stroke={t.color}
-                strokeWidth={0.9}
-                style={{
-                  opacity: 0.85,
-                  // Fires once on mount (traveler spawn), not on each step
-                  animation: 'headSpawn 240ms ease-out',
-                }}
-              />
-            </g>
+            />
           </g>
         )
       })}
 
-      {/* Merged — bursts in, holds for 4 s, fades out */}
-      {merged && (
-        <g key={merged.id} transform={`translate(${merged.x},${merged.y})`}>
-          <polygon
-            points={`0,${-DY * 1.8} ${DX * 1.8},0 0,${DY * 1.8} ${-DX * 1.8},0`}
-            fill={merged.c1}
-            style={{ animation: `mergedOuter ${MERGE_MS}ms ease-in-out forwards` }}
-          />
-          <polygon
-            points={`0,${-DY} ${DX},0 0,${DY} ${-DX},0`}
-            fill={merged.c2}
-            style={{ animation: `mergedInner ${MERGE_MS}ms ease-in-out forwards` }}
-          />
+      {/* Mini 3D green crystal — same visual language as hero cubes, fits one grid tile */}
+      {crystal && (
+        <g key={crystal.id} transform={`translate(${crystal.x},${crystal.y})`}>
+          {/* Animation wrapper — scales from the crystal's own center (0,0) */}
+          <g
+            filter="url(#mc-ds)"
+            style={{
+              animation: `crystalEmerge ${MERGE_MS}ms ease-in-out forwards`,
+              transformOrigin: '0px 0px',
+            }}
+          >
+            {/* Top face — same footprint as grid diamond tile */}
+            <polygon
+              points={`0,${-DY} ${DX},0 0,${DY} ${-DX},0`}
+              fill="url(#mc-top)"
+              opacity="0.94"
+            />
+            {/* Left face */}
+            <polygon
+              points={`${-DX},0 0,${DY} 0,${DY + CDEPTH} ${-DX},${CDEPTH}`}
+              fill="url(#mc-left)"
+              opacity="0.94"
+            />
+            {/* Right face */}
+            <polygon
+              points={`0,${DY} ${DX},0 ${DX},${CDEPTH} 0,${DY + CDEPTH}`}
+              fill="url(#mc-rite)"
+              opacity="0.94"
+            />
+          </g>
         </g>
       )}
 
       <style>{`
-        /* Head: pop-in on traveler spawn (fires once per traveler lifetime) */
-        @keyframes headSpawn {
-          0%   { opacity: 0;    transform: scale(0.35); }
-          55%  { opacity: 1.00; transform: scale(1.12); }
-          100% { opacity: 0.85; transform: scale(1.00); }
+        /* Dark tile rises from the grid surface as signal passes through */
+        @keyframes tilePop {
+          0%   { opacity: 0;    transform: scale(0.25); }
+          52%  { opacity: 0.44; transform: scale(1.08); }
+          100% { opacity: 0.34; transform: scale(1.00); }
         }
 
-        /* Trail tile: fades in as head departs that position */
-        @keyframes trailBirth {
-          0%   { opacity: 0.72; }
-          100% { opacity: 0.34; }
-        }
-
-        /* Merged outer halo: burst → hold → fade */
-        @keyframes mergedOuter {
-          0%   { opacity: 0;    transform: scale(0.30); }
-          7%   { opacity: 1.00; transform: scale(1.80); }
-          16%  { opacity: 0.88; transform: scale(1.40); }
-          72%  { opacity: 0.80; transform: scale(1.35); }
-          90%  { opacity: 0.28; transform: scale(1.25); }
-          100% { opacity: 0;    transform: scale(1.15); }
-        }
-
-        /* Merged inner core: appears slightly later, holds longer */
-        @keyframes mergedInner {
-          0%   { opacity: 0;    transform: scale(0.20); }
-          10%  { opacity: 1.00; transform: scale(1.25); }
-          22%  { opacity: 0.92; transform: scale(1.00); }
-          72%  { opacity: 0.88; transform: scale(1.00); }
-          90%  { opacity: 0.35; transform: scale(0.95); }
-          100% { opacity: 0;    transform: scale(0.85); }
+        /* Mini crystal: emerges from tile, holds, sinks back */
+        @keyframes crystalEmerge {
+          0%   { opacity: 0;    transform: scale(0.10) translateY(8px);  }
+          9%   { opacity: 1.00; transform: scale(1.20) translateY(-4px); }
+          17%  { opacity: 0.96; transform: scale(1.00) translateY(0);    }
+          70%  { opacity: 0.92; transform: scale(1.00) translateY(0);    }
+          87%  { opacity: 0;    transform: scale(0.45) translateY(5px);  }
+          100% { opacity: 0;    transform: scale(0.15) translateY(10px); }
         }
       `}</style>
     </svg>

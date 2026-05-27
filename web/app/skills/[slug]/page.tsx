@@ -28,16 +28,16 @@ export default function VerticalPage({ params }: Props) {
       <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Breadcrumb */}
         <nav style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)", marginBottom: 32, display: "flex", alignItems: "center", gap: 8 }}>
-          <Link href="/" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Home</Link>
-          <span style={{ color: "var(--text-faint)" }}>/</span>
-          <Link href="/skills" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Skills</Link>
-          <span style={{ color: "var(--text-faint)" }}>/</span>
+          <Link href="/" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Home</Link>
+          <span style={{ color: "var(--text-muted)" }}>/</span>
+          <Link href="/skills" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Skills</Link>
+          <span style={{ color: "var(--text-muted)" }}>/</span>
           <span style={{ color: "var(--text-muted)" }}>{v.title}</span>
         </nav>
 
         {/* Description + CTAs */}
         <div style={{ marginBottom: 36 }}>
-          <p style={{ fontSize: 14, color: "rgba(13,31,20,0.55)", maxWidth: 640, lineHeight: 1.75, fontWeight: 300, marginBottom: 24 }}>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", maxWidth: 640, lineHeight: 1.75, fontWeight: 300, marginBottom: 24 }}>
             {v.description}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
@@ -66,7 +66,7 @@ export default function VerticalPage({ params }: Props) {
 
         {/* Install command */}
         <div style={{ background: "var(--s1)", border: "1px solid var(--b0)", borderRadius: 10, padding: "16px 20px", marginBottom: 48 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: 8 }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 8 }}>
             CLI Install
           </div>
           <code style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>{v.installCommand}</code>
@@ -106,7 +106,7 @@ export default function VerticalPage({ params }: Props) {
                     /{s.slug}
                   </code>
                 </div>
-                <p style={{ fontSize: 12, color: "rgba(13,31,20,0.45)", lineHeight: 1.6, fontWeight: 300 }}>
+                <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6, fontWeight: 300 }}>
                   {s.description}
                 </p>
                 <div style={{ fontSize: 11, color: "rgba(13,31,20,0.4)" }}>
@@ -122,7 +122,7 @@ export default function VerticalPage({ params }: Props) {
 
         {/* Other verticals */}
         <div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: 12 }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 12 }}>
             Other verticals
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>

@@ -156,31 +156,41 @@ export default function HomePage() {
               <linearGradient id="grite" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#c0dccb" /><stop offset="100%" stopColor="#96c8ae" /></linearGradient>
             </defs>
 
-            {/* ── 3D isometric cubes (original) ────────────── */}
-            <g filter="url(#ds1)" transform="translate(300,55)">
-              <polygon points="65,0  130,38  65,76  0,38"  fill="url(#gtop)"  opacity="0.88" />
-              <polygon points="0,38  65,76  65,120 0,82"   fill="url(#gleft)" opacity="0.88" />
-              <polygon points="65,76 130,38 130,82 65,120" fill="url(#grite)" opacity="0.88" />
+            {/* ── 3D isometric cubes — each wrapped for independent float ── */}
+            <g style={{ animation: "cubeFloat1 6.8s ease-in-out infinite" }}>
+              <g filter="url(#ds1)" transform="translate(300,55)">
+                <polygon points="65,0  130,38  65,76  0,38"  fill="url(#gtop)"  opacity="0.88" />
+                <polygon points="0,38  65,76  65,120 0,82"   fill="url(#gleft)" opacity="0.88" />
+                <polygon points="65,76 130,38 130,82 65,120" fill="url(#grite)" opacity="0.88" />
+              </g>
             </g>
-            <g filter="url(#ds2)" transform="translate(360,220)">
-              <polygon points="46,0  92,27  46,54  0,27"  fill="url(#gtop)"  opacity="0.82" />
-              <polygon points="0,27  46,54  46,86  0,59"  fill="url(#gleft)" opacity="0.82" />
-              <polygon points="46,54 92,27 92,59 46,86"   fill="url(#grite)" opacity="0.82" />
+            <g style={{ animation: "cubeFloat2 5.3s ease-in-out -1.5s infinite" }}>
+              <g filter="url(#ds2)" transform="translate(360,220)">
+                <polygon points="46,0  92,27  46,54  0,27"  fill="url(#gtop)"  opacity="0.82" />
+                <polygon points="0,27  46,54  46,86  0,59"  fill="url(#gleft)" opacity="0.82" />
+                <polygon points="46,54 92,27 92,59 46,86"   fill="url(#grite)" opacity="0.82" />
+              </g>
             </g>
-            <g filter="url(#ds2)" transform="translate(210,320)">
-              <polygon points="36,0  72,21  36,42  0,21"  fill="url(#gtop)"  opacity="0.72" />
-              <polygon points="0,21  36,42  36,66  0,45"  fill="url(#gleft)" opacity="0.72" />
-              <polygon points="36,42 72,21 72,45 36,66"   fill="url(#grite)" opacity="0.72" />
+            <g style={{ animation: "cubeFloat3 7.5s ease-in-out -2.8s infinite" }}>
+              <g filter="url(#ds2)" transform="translate(210,320)">
+                <polygon points="36,0  72,21  36,42  0,21"  fill="url(#gtop)"  opacity="0.72" />
+                <polygon points="0,21  36,42  36,66  0,45"  fill="url(#gleft)" opacity="0.72" />
+                <polygon points="36,42 72,21 72,45 36,66"   fill="url(#grite)" opacity="0.72" />
+              </g>
             </g>
-            <g filter="url(#ds2)" transform="translate(454,140)">
-              <polygon points="28,0  56,16  28,32  0,16"  fill="url(#gtop)"  opacity="0.65" />
-              <polygon points="0,16  28,32  28,52  0,36"  fill="url(#gleft)" opacity="0.65" />
-              <polygon points="28,32 56,16 56,36 28,52"   fill="url(#grite)" opacity="0.65" />
+            <g style={{ animation: "cubeFloat4 4.8s ease-in-out -0.8s infinite" }}>
+              <g filter="url(#ds2)" transform="translate(454,140)">
+                <polygon points="28,0  56,16  28,32  0,16"  fill="url(#gtop)"  opacity="0.65" />
+                <polygon points="0,16  28,32  28,52  0,36"  fill="url(#gleft)" opacity="0.65" />
+                <polygon points="28,32 56,16 56,36 28,52"   fill="url(#grite)" opacity="0.65" />
+              </g>
             </g>
-            <g filter="url(#ds2)" transform="translate(165,175)">
-              <polygon points="40,0  80,23  40,46  0,23"  fill="url(#gtop)"  opacity="0.45" />
-              <polygon points="0,23  40,46  40,72  0,49"  fill="url(#gleft)" opacity="0.45" />
-              <polygon points="40,46 80,23 80,49 40,72"   fill="url(#grite)" opacity="0.45" />
+            <g style={{ animation: "cubeFloat5 8.2s ease-in-out -3.2s infinite" }}>
+              <g filter="url(#ds2)" transform="translate(165,175)">
+                <polygon points="40,0  80,23  40,46  0,23"  fill="url(#gtop)"  opacity="0.45" />
+                <polygon points="0,23  40,46  40,72  0,49"  fill="url(#gleft)" opacity="0.45" />
+                <polygon points="40,46 80,23 80,49 40,72"   fill="url(#grite)" opacity="0.45" />
+              </g>
             </g>
 
             {/* ── Flat small tiles scattered around cubes ─── */}
@@ -456,7 +466,7 @@ export default function HomePage() {
           Ready to install your first skill?{" "}
           <span style={{ color: "var(--text-fade)" }}>Start in minutes.</span>
         </h2>
-        <p className="anim anim-d1" style={{ fontSize: 14, color: "rgba(13,31,20,0.45)", marginBottom: 28, fontWeight: 300 }}>
+        <p className="anim anim-d1" style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 28, fontWeight: 300 }}>
           Start with Financial Analysis — the foundation every other skill builds on.
         </p>
         <div className="anim anim-d2" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
@@ -475,7 +485,7 @@ export default function HomePage() {
             <ArrowSVG />
           </Link>
         </div>
-        <p className="anim anim-d3" style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-faint)", marginTop: 16, letterSpacing: "0.04em" }}>
+        <p className="anim anim-d3" style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)", marginTop: 16, letterSpacing: "0.04em" }}>
           Requires Claude for Work (Teams or Enterprise) · Free · Apache-2.0
         </p>
       </div>

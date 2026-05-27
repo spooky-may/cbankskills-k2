@@ -132,7 +132,7 @@ export default function EnterprisePage() {
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.3, marginBottom: 8 }}>
                     {uc.heading}
                   </h3>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, fontWeight: 300 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", lineHeight: 1.7, fontWeight: 300 }}>
                     {uc.body}
                   </p>
                 </div>
@@ -317,7 +317,7 @@ export default function EnterprisePage() {
           <h2 style={{ fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, color: "#fff", letterSpacing: "-0.04em", marginBottom: 10 }}>
             Ready to deploy?
           </h2>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.40)", marginBottom: 28, fontWeight: 300, maxWidth: 420, margin: "0 auto 28px" }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", marginBottom: 28, fontWeight: 300, maxWidth: 420, margin: "0 auto 28px" }}>
             Browse the skills directory or read the install guide. No account required to browse — Claude for Work needed to deploy.
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>

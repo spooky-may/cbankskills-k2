@@ -61,7 +61,7 @@ export default function PageHeader({ eyebrow, title, subtitle }: Props) {
           <p
             style={{
               fontSize: 16,
-              color: "rgba(13,31,20,0.50)",
+              color: "var(--text-muted)",
               maxWidth: 560,
               lineHeight: 1.68,
               fontWeight: 300,

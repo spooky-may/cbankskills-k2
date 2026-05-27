@@ -46,7 +46,7 @@ export default function Footer() {
           <div style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 800, letterSpacing: "-0.03em", textTransform: "uppercase", color: "var(--text)" }}>
             CBANK
           </div>
-          <div style={{ fontSize: 10, color: "var(--text-faint)", marginTop: 2 }}>
+          <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>
             Claude AI skills for financial services
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function Footer() {
               href={l.href}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: 11, color: "var(--text-faint)", textDecoration: "none", transition: "color 0.15s" }}
+              style={{ fontSize: 11, color: "var(--text-muted)", textDecoration: "none", transition: "color 0.15s" }}
             >
               {l.label}
             </a>
@@ -75,7 +75,7 @@ export default function Footer() {
             <Link
               key={l.label}
               href={l.href}
-              style={{ fontSize: 11, color: "var(--text-faint)", textDecoration: "none" }}
+              style={{ fontSize: 11, color: "var(--text-muted)", textDecoration: "none" }}
             >
               {l.label}
             </Link>

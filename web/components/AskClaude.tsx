@@ -247,16 +247,9 @@ export default function AskClaude({ vertical, context, compact = false }: Props)
         {/* Body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           {msgs.length === 0 ? (
-            <>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 300, lineHeight: 1.65 }}>
-                Ask anything about <strong style={{ fontWeight: 600, color: 'var(--text)' }}>{context}</strong>. Try a suggested question:
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {questions.map(q => (
-                  <button key={q} className="ac-question-btn" onClick={() => send(q)}>{q}</button>
-                ))}
-              </div>
-            </>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 300, lineHeight: 1.65 }}>
+              Ask anything about <strong style={{ fontWeight: 600, color: 'var(--text)' }}>{context}</strong>. Try a suggested question below:
+            </p>
           ) : (
             <>
               {msgs.map((m, i) => (
@@ -295,8 +288,22 @@ export default function AskClaude({ vertical, context, compact = false }: Props)
           )}
         </div>
 
+        {/* Suggested questions — always visible above input */}
+        <div style={{ padding: '8px 16px 4px', borderTop: '1px solid var(--b0)', display: 'flex', gap: 6, overflowX: 'auto', flexShrink: 0 }}>
+          {questions.map((q, i) => (
+            <button
+              key={q}
+              className="ac-chip-btn"
+              style={{ animationDelay: `${i * 50}ms` }}
+              onClick={() => send(q)}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
         {/* Input */}
-        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--b0)', display: 'flex', gap: 8, flexShrink: 0 }}>
+        <div style={{ padding: '8px 16px 12px', display: 'flex', gap: 8, flexShrink: 0 }}>
           <input
             ref={inputRef}
             className="ac-input"
@@ -367,14 +374,15 @@ export default function AskClaude({ vertical, context, compact = false }: Props)
           position: fixed; inset: 0; z-index: 9999;
           display: flex; align-items: center; justify-content: center; padding: 20px;
           background: rgba(13,31,20,0.45); backdrop-filter: blur(4px);
-          animation: ac-fade-in 200ms ease forwards;
+          animation: ac-fade-in 180ms ease forwards;
         }
         .ac-panel {
           background: var(--bg); border: 1px solid var(--b1); border-radius: 16px;
-          width: 100%; max-width: 560px; max-height: 80vh;
+          width: 100%; max-width: 560px;
+          height: 560px; max-height: 85vh;
           display: flex; flex-direction: column; overflow: hidden;
           box-shadow: 0 24px 64px rgba(13,31,20,0.18);
-          animation: ac-slide-in 420ms cubic-bezier(0.16,1,0.3,1) forwards;
+          animation: ac-enter 280ms cubic-bezier(0.22,1,0.36,1) forwards;
         }
         .ac-trigger-btn {
           background: var(--accent); color: #fff; border: none; border-radius: 8px;
@@ -388,13 +396,14 @@ export default function AskClaude({ vertical, context, compact = false }: Props)
           transition: background 0.1s;
         }
         .ac-close-btn:hover { background: var(--s1); }
-        .ac-question-btn {
-          background: var(--s1); border: 1px solid var(--b0); border-radius: 8px;
-          padding: 10px 14px; font-size: 12px; color: var(--text-muted); text-align: left;
-          cursor: pointer; font-family: var(--font-sans); line-height: 1.5;
-          transition: border-color 0.1s, background 0.1s, color 0.1s;
+        .ac-chip-btn {
+          background: var(--s1); border: 1px solid var(--b0); border-radius: 20px;
+          padding: 5px 11px; font-size: 11px; color: var(--text-muted);
+          white-space: nowrap; cursor: pointer; font-family: var(--font-sans); line-height: 1.4;
+          flex-shrink: 0; transition: border-color 0.12s, background 0.12s, color 0.12s;
+          animation: ac-chip-in 200ms ease both;
         }
-        .ac-question-btn:hover { border-color: var(--accent-mid); background: var(--s2); color: var(--text); }
+        .ac-chip-btn:hover { border-color: var(--accent-mid); background: var(--s2); color: var(--text); }
         .ac-input {
           flex: 1; background: var(--s1); border: 1px solid var(--b0); border-radius: 8px;
           padding: 9px 12px; font-size: 13px; color: var(--text); font-family: var(--font-sans);
@@ -415,11 +424,18 @@ export default function AskClaude({ vertical, context, compact = false }: Props)
           animation: ac-blink 800ms step-end infinite;
         }
         @keyframes ac-fade-in  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes ac-slide-in {
-          from { opacity: 0; transform: translateY(16px) scale(0.98); }
-          to   { opacity: 1; transform: translateY(0)    scale(1);    }
+        @keyframes ac-enter {
+          from { opacity: 0; transform: translateY(10px) scale(0.97); }
+          to   { opacity: 1; transform: none; }
+        }
+        @keyframes ac-chip-in {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: none; }
         }
         @keyframes ac-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        /* hide horizontal scrollbar on suggestions strip */
+        .ac-panel > div:nth-last-child(2)::-webkit-scrollbar { display: none; }
+        .ac-panel > div:nth-last-child(2) { scrollbar-width: none; -ms-overflow-style: none; }
       `}</style>
     </>
   )

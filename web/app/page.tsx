@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 };
 
 const FEATURED_SKILLS = [
-  { vertical: "IB",           cmd: "/cim-builder",  name: "CIM Builder",     desc: "Draft a 60-page CIM from a data room in hours." },
-  { vertical: "Equity",       cmd: "/morning-note", name: "Morning Note",    desc: "Post-earnings research note before the market opens." },
-  { vertical: "PE",           cmd: "/ic-memo",       name: "IC Memo",         desc: "From DD findings to IC-ready memo in one command." },
-  { vertical: "Fin Analysis", cmd: "/dcf-model",    name: "DCF Model",       desc: "5-year DCF with WACC sensitivity from a 10-K." },
-  { vertical: "Fund Admin",   cmd: "/nav-tieout",   name: "NAV Tie-Out",     desc: "Catch LP statement errors before they reach investors." },
-  { vertical: "Wealth",       cmd: "/fin-plan",     name: "Financial Plan",  desc: "Full retirement plan from a client intake form." },
+  { vertical: "IB",           verticalSlug: "investment-banking",  cmd: "/cim-builder",  skillSlug: "cim-builder",        name: "CIM Builder",     desc: "Draft a 60-page CIM from a data room in hours." },
+  { vertical: "Equity",       verticalSlug: "equity-research",     cmd: "/morning-note", skillSlug: "morning-note",       name: "Morning Note",    desc: "Post-earnings research note before the market opens." },
+  { vertical: "PE",           verticalSlug: "private-equity",      cmd: "/ic-memo",      skillSlug: "ic-memo",            name: "IC Memo",         desc: "From DD findings to IC-ready memo in one command." },
+  { vertical: "Fin Analysis", verticalSlug: "financial-analysis",  cmd: "/dcf-model",    skillSlug: "dcf-model",          name: "DCF Model",       desc: "5-year DCF with WACC sensitivity from a 10-K." },
+  { vertical: "Fund Admin",   verticalSlug: "fund-admin",          cmd: "/nav-tieout",   skillSlug: "nav-tieout",         name: "NAV Tie-Out",     desc: "Catch LP statement errors before they reach investors." },
+  { vertical: "Wealth",       verticalSlug: "wealth-management",   cmd: "/financial-plan", skillSlug: "financial-plan",   name: "Financial Plan",  desc: "Full retirement plan from a client intake form." },
 ];
 
 const PILLARS = [
@@ -333,7 +333,7 @@ export default function HomePage() {
           {FEATURED_SKILLS.map((s, i) => (
             <Link
               key={s.cmd}
-              href={`/skills/${s.name.toLowerCase().replace(/\s+/g, "-")}`}
+              href={`/skills/${s.verticalSlug}/${s.skillSlug}`}
               className={`skill-card anim anim-d${(i % 3) + 1}`}
               style={{
                 background: "var(--s1)",

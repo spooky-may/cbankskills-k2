@@ -6,7 +6,7 @@ import AskClaude from "@/components/AskClaude";
 
 type Props = { params: { slug: string } };
 
-const GITHUB_BASE = "https://github.com/spooky-may/project-jane-street/tree/main/skills/plugins/vertical-plugins";
+const GITHUB_BASE = "https://github.com/x-cookie/cbankskills-k44/tree/main/skills/plugins/vertical-plugins";
 
 export function generateStaticParams() {
   return verticals.map((v) => ({ slug: v.slug }));

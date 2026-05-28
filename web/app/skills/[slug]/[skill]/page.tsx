@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { verticals } from "@/content/verticals";
+import { getDemoId } from "@/content/demos";
 import PageHeader from "@/components/PageHeader";
+import { DemoVideo } from "@/components/DemoVideo";
 import AskClaude from "@/components/AskClaude";
 
 type Props = { params: { slug: string; skill: string } };
@@ -30,6 +32,7 @@ export default function SkillPage({ params }: Props) {
 
   const skillGithubUrl = `${GITHUB_BASE}/${v.slug}/skills/${s.slug}`;
   const verticalGithubUrl = `${GITHUB_BASE}/${v.slug}`;
+  const videoId = getDemoId(v.slug, s.slug);
 
   return (
     <>
@@ -54,6 +57,8 @@ export default function SkillPage({ params }: Props) {
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Main content */}
           <div className="lg:col-span-2 flex flex-col gap-10">
+
+            {videoId && <DemoVideo videoId={videoId} />}
 
             {/* What it produces */}
             <section>
